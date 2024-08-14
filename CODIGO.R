@@ -8,6 +8,25 @@ library(writexl)
 install.packages("purrr")
 library(purrr)
 
+# Mapeo de departamentos a regiones en Colombia
+departamentos_a_regiones <- data.frame(
+  DEPARTAMENTOS = c(
+    "AMAZONAS", "ANTIOQUIA", "ARAUCA", "ATLÁNTICO", "BOLÍVAR", "BOYACÁ", "CALDAS", "CAQUETÁ", 
+    "CASANARE", "CAUCA", "CESAR", "CHOCÓ", "CÓRDOBA", "CUNDINAMARCA", "GUAINÍA", "GUAVIARE", 
+    "HUILA", "LA GUAJIRA", "MAGDALENA", "META", "NARIÑO", "NORTE DE SANTANDER", "PUTUMAYO", 
+    "QUINDÍO", "RISARALDA", "SAN ANDRÉS Y PROVIDENCIA", "SANTANDER", "SUCRE", "TOLIMA", 
+    "VALLE DEL CAUCA", "VAUPÉS", "VICHADA"
+  ),
+  REGIONES = c(
+    "REGIÓN AMAZONÍA", "REGIÓN ANDINA", "REGIÓN ORINOQUÍA", "REGIÓN CARIBE", "REGIÓN CARIBE", 
+    "REGIÓN ANDINA", "REGIÓN ANDINA", "REGIÓN AMAZONÍA", "REGIÓN ORINOQUÍA", "REGIÓN PACÍFICA", 
+    "REGIÓN CARIBE", "REGIÓN PACÍFICA", "REGIÓN CARIBE", "REGIÓN ANDINA", "REGIÓN AMAZONÍA", 
+    "REGIÓN AMAZONÍA", "REGIÓN ANDINA", "REGIÓN CARIBE", "REGIÓN CARIBE", "REGIÓN ORINOQUÍA", 
+    "REGIÓN PACÍFICA", "REGIÓN ANDINA", "REGIÓN AMAZONÍA", "REGIÓN ANDINA", "REGIÓN ANDINA", 
+    "REGIÓN CARIBE", "REGIÓN ANDINA", "REGIÓN CARIBE", "REGIÓN ANDINA", "REGIÓN PACÍFICA", 
+    "REGIÓN AMAZONÍA", "REGIÓN ORINOQUÍA"
+  )
+)
 # Nombres de las hojas
 hojas <- c("FEBRERO", "ABRIL", "MAYO", "JUNIO","JULIO","AGOSTO","SEPTIEMBRE","DICIEMBRE")
 
@@ -16,12 +35,15 @@ resultados <- list()
 
 # Iterar sobre cada hoja, procesar y almacenar el resultado
 for (hoja in hojas) {
-  # Leer la hoja actual
-  datos <- read_excel("C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023.xlsx", sheet = hoja)
-  
-  # Calcular las frecuencias
+# Leer la hoja actual
+datos <- read_excel("C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023.xlsx", sheet = hoja)
+# Añadir la columna REGIONES a partir del mapeo de departamentos
+datos <- datos %>%
+left_join(departamentos_a_regiones, by = "DEPARTAMENTOS") %>%  # Unir con el mapeo de regiones
+select(REGIONES, everything())  # Reordenar las columnas para que REGIONES sea la primera
+# Calcular las frecuencias
   frecuencias <- datos %>%
-    group_by(`CODIGO DEPARTAMENTO`, DEPARTAMENTOS, MUNICIPIOS) %>%
+    group_by(`CODIGO DEPARTAMENTO`, REGIONES, DEPARTAMENTOS, MUNICIPIOS) %>%
     summarise(
       AUMENTOS = sum(PREDICCION == "AUMENTO"),
       ESPERADOS = sum(PREDICCION == "ESPERADO"),
@@ -80,7 +102,7 @@ procesar_combinacion <- function(columna, hoja) {
   
   # Leer y seleccionar las columnas de la hoja correspondiente del archivo de PREDICCIONES
   prediccion_combinada <- read_excel(prediccion_path, sheet = hoja) %>%
-    select(DEPARTAMENTOS, MUNICIPIOS, Mayor_Frecuencia) %>%
+    select(REGIONES,DEPARTAMENTOS, MUNICIPIOS, Mayor_Frecuencia) %>%
     mutate(HOJA = hoja) # Añadir una columna para identificar la hoja
   
   # Realizar el inner join para encontrar los municipios y departamentos en común
@@ -91,14 +113,12 @@ procesar_combinacion <- function(columna, hoja) {
     mutate(OPERACION = case_when(
       !!sym(columna) == "ESPERADO" & Mayor_Frecuencia == "ESPERADO" ~ "SI",
       !!sym(columna) == "ESPERADO" & Mayor_Frecuencia != "ESPERADO" ~ "NO",
-      !!sym(columna) == "BROTE" & Mayor_Frecuencia == "BROTE" ~ "SI",
-      !!sym(columna) == "BROTE" & Mayor_Frecuencia != "BROTE" ~ "NO",
       !!sym(columna) == "AUMENTO" & Mayor_Frecuencia == "AUMENTO" ~ "SI",
       !!sym(columna) == "AUMENTO" & Mayor_Frecuencia != "AUMENTO" ~ "NO",
       !!sym(columna) == "DECREMENTO" & Mayor_Frecuencia == "DECREMENTO" ~ "SI",
       TRUE ~ "NO"
     )) %>%
-    select(DEPARTAMENTOS, MUNICIPIOS, !!sym(columna), Mayor_Frecuencia, OPERACION)
+    select(REGIONES, DEPARTAMENTOS, MUNICIPIOS, !!sym(columna), Mayor_Frecuencia, OPERACION)
   
   return(resultadosc)
 }
