@@ -1,13 +1,13 @@
 #Cargando librerias necesarias
 install.packages("readxl")
-library(readxl)
 install.packages("dplyr")
-library(dplyr)
 install.packages("writexl")
-library(writexl)
 install.packages("purrr")
-library(purrr)
 
+library(readxl)
+library(dplyr)
+library(writexl)
+library(purrr)
 # Mapeo de departamentos a regiones en Colombia
 departamentos_a_regiones <- data.frame(
   DEPARTAMENTOS = c(
@@ -43,7 +43,7 @@ left_join(departamentos_a_regiones, by = "DEPARTAMENTOS") %>%  # Unir con el map
 select(REGIONES, everything())  # Reordenar las columnas para que REGIONES sea la primera
 # Calcular las frecuencias
   frecuencias <- datos %>%
-    group_by(`CODIGO DEPARTAMENTO`, REGIONES, DEPARTAMENTOS, MUNICIPIOS) %>%
+    group_by(`CODIGO DEPARTAMENTOS`, REGIONES, DEPARTAMENTOS, MUNICIPIOS) %>%
     summarise(
       AUMENTOS = sum(PREDICCION == "AUMENTO"),
       ESPERADOS = sum(PREDICCION == "ESPERADO"),
@@ -91,9 +91,9 @@ combinaciones <- list(
 # Función para procesar cada combinación
 procesar_combinacion <- function(columna, hoja) {
   # Leer las columnas necesarias del archivo observado
-  hoja_observado <- read_excel(observado_path, sheet = "Hoja1")
+  hoja_observado <- read_excel(observado_path, sheet = "Sheet 1")
   rango_seleccionado <- hoja_observado %>%
-    select(DEPARTAMENTOS, MUNICIPIOS, FEBREROO, ABRILO, MAYOO, JUNIOO, JULIOO, AGOSTOO, SEPTIEMBREO, DICIEMBREO) # Selecciona las columnas específicas por nombre o posición
+    select(`CODIGO DEPARTAMENTOS`,DEPARTAMENTOS,`CODIGO MUNICIPIOS`,MUNICIPIOS, FEBREROO, ABRILO, MAYOO, JUNIOO, JULIOO, AGOSTOO, SEPTIEMBREO, DICIEMBREO) # Selecciona las columnas específicas por nombre o posición
   
   
   # Filtrar los datos de la columna específica del archivo OBSERVADO
@@ -102,7 +102,7 @@ procesar_combinacion <- function(columna, hoja) {
   
   # Leer y seleccionar las columnas de la hoja correspondiente del archivo de PREDICCIONES
   prediccion_combinada <- read_excel(prediccion_path, sheet = hoja) %>%
-    select(REGIONES,DEPARTAMENTOS, MUNICIPIOS, Mayor_Frecuencia) %>%
+    select(REGIONES,`CODIGO DEPARTAMENTOS`,DEPARTAMENTOS, MUNICIPIOS, Mayor_Frecuencia) %>%
     mutate(HOJA = hoja) # Añadir una columna para identificar la hoja
   
   # Realizar el inner join para encontrar los municipios y departamentos en común
@@ -118,7 +118,7 @@ procesar_combinacion <- function(columna, hoja) {
       !!sym(columna) == "DECREMENTO" & Mayor_Frecuencia == "DECREMENTO" ~ "SI",
       TRUE ~ "NO"
     )) %>%
-    select(REGIONES, DEPARTAMENTOS, MUNICIPIOS, !!sym(columna), Mayor_Frecuencia, OPERACION)
+    select(REGIONES,`CODIGO DEPARTAMENTOS`, DEPARTAMENTOS, MUNICIPIOS, !!sym(columna), Mayor_Frecuencia, OPERACION)
   
   return(resultadosc)
 }
