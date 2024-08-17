@@ -3,12 +3,13 @@ install.packages("readxl")
 install.packages("dplyr")
 install.packages("writexl")
 install.packages("purrr")
-
+install.packages("openxlsx")
 library(readxl)
 library(dplyr)
 library(writexl)
 library(purrr)
-# Mapeo de departamentos a regiones en Colombia
+library(openxlsx)
+# Mapeo de departamentos a regiones en Colombia. Importante en este ejercicio es primordial depurar solo DEPARTAMENTOS y poner en mayuscula los MUNICIPIOS solamente 
 departamentos_a_regiones <- data.frame(
   DEPARTAMENTOS = c(
     "AMAZONAS", "ANTIOQUIA", "ARAUCA", "ATLÁNTICO", "BOLÍVAR", "BOYACÁ", "CALDAS", "CAQUETÁ", 
@@ -69,7 +70,7 @@ select(REGIONES, everything())  # Reordenar las columnas para que REGIONES sea l
 }
 
 # Escribir todas las hojas procesadas en un solo archivo Excel
-write_xlsx(resultados, path = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023FILTRADO.xlsx")
+write_xlsx(resultados, path = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023REGIONES.xlsx")
 
 
 # Cargar los archivos
@@ -132,8 +133,67 @@ resultados_finales <- map(combinaciones, ~ {
 resultados_finales_named <- setNames(resultados_finales, sapply(combinaciones, `[[`, "hoja"))
 
 # Guardar los resultados en un archivo Excel
-write_xlsx(resultados_finales, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\COMPARATIVO2023.xlsx")
+write_xlsx(resultados_finales_named, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\COMPARATIVO2023.xlsx")
 
+#NOTA::**** EN ESTA PARTE se debe revisar el documento !!!CONTINUAR!!! EN especial FEBREROO... A OBSERVADO
+
+# Ruta. Aquí vamos a sacar el porcentaje por REGIONES
+ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\COMPARATIVO2023O.xlsx"
+
+# Nombres de las hojas de Excel a procesar
+hojas <- c("FEBRERO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","DICIEMBRE")
+
+# Crear un nuevo archivo Excel
+wb <- createWorkbook()
+
+# Función para leer y procesar cada hoja
+procesar_hoja <- function(hoja) {
+  # Leer la hoja de Excel
+  datos <- read_excel(ruta_archivo, sheet = hoja)
+  
+  # Filtrar las filas según las combinaciones especificadas
+  aumento_aumento <- datos %>% filter(OBSERVADO == "AUMENTO" & Mayor_Frecuencia == "AUMENTO")
+  esperado_esperado <- datos %>% filter(OBSERVADO == "ESPERADO" & Mayor_Frecuencia == "ESPERADO")
+  decremento_decremento <- datos %>% filter(OBSERVADO == "DECREMENTO" & Mayor_Frecuencia == "DECREMENTO")
+  
+  # Calcular el porcentaje por regiones para cada categoría
+  porcentaje_aumento <- aumento_aumento %>%
+    group_by(REGIONES) %>%
+    summarise(total = n()) %>%
+    mutate(Porcentaje_AUMENTO = (total / sum(total)) * 100)
+  
+  porcentaje_esperado <- esperado_esperado %>%
+    group_by(REGIONES) %>%
+    summarise(total = n()) %>%
+    mutate(Porcentaje_ESPERADO = (total / sum(total)) * 100)
+  
+  porcentaje_decremento <- decremento_decremento %>%
+    group_by(REGIONES) %>%
+    summarise(total = n()) %>%
+    mutate(Porcentaje_DECREMENTO = (total / sum(total)) * 100)
+  
+  # Crear un cuadro resumen
+  cuadro_resumen <- full_join(porcentaje_aumento, porcentaje_esperado, by = "REGIONES") %>%
+    full_join(., porcentaje_decremento, by = "REGIONES") %>%
+    select(REGIONES, Porcentaje_AUMENTO, Porcentaje_ESPERADO, Porcentaje_DECREMENTO)
+  
+  return(cuadro_resumen)
+}
+
+# Procesar todas las hojas y escribir cada una en una hoja nueva del archivo Excel
+for (i in seq_along(hojas)) {
+  hoja <- hojas[i]
+  datos_resumen <- procesar_hoja(hoja)
+  
+  # Añadir una hoja al workbook con un nombre único
+  addWorksheet(wb, paste(hoja, "_", i, sep = ""))
+  
+  # Escribir los datos en la hoja correspondiente
+  writeData(wb, sheet = paste(hoja, "_", i, sep = ""), datos_resumen)
+}
+
+# Guardar el archivo Excel con múltiples hojas
+saveWorkbook(wb, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\%REGIONES.xlsx", overwrite = TRUE)
 
 #como importar archivos de excel a R
 file.choose()
