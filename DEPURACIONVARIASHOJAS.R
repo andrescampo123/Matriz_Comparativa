@@ -5,47 +5,19 @@ install.packages("readxl")
 install.packages("writexl")
 install.packages("dplyr")
 install.packages("readxl")
+install.packages("openxlsx")
 library(readxl)
 library(writexl)
 library(dplyr)
 library(readxl)
-# Cargar el archivo Excel
-archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023.xlsx"  
+library(openxlsx)
 
-
-# Listar las hojas a procesar
-hojas <- c("FEBRERO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "DICIEMBRE")
-
-# Función para eliminar paréntesis y su contenido
-eliminar_parentesis <- function(texto) {
-  gsub("\\(.*?\\)", "", texto)
-}
-
-# Inicializar una lista para guardar los datos modificados
-datos_modificados <- list()
-
-# Procesar cada hoja
-for (hoja in hojas) {
-  # Leer la hoja
-  data <- read_excel(archivo, sheet = hoja)
-  
-  # Modificar la columna "MUNICIPIOS"
-  if ("MUNICIPIOS" %in% colnames(data)) {
-    data <- data %>%
-      mutate(MUNICIPIOS = eliminar_parentesis(MUNICIPIOS))
-  }
-  
-  # Guardar los datos modificados en la lista
-  datos_modificados[[hoja]] <- data
-}
-
-# Guardar el archivo modificado
-write_xlsx(datos_modificados, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023.xlsx")
+# !!!Este codigo Depura las bases y elimina los parentesis dentro d ela columna municipio!!!
 
 # Leer la base de datos para depurar departamentos y municipios
 
-ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023.xlsx"
-hojas <- c("FEBRERO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "DICIEMBRE")
+ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024.xlsx"
+hojas <- c("ENERO","FEBRERO")
 
 
 
@@ -330,30 +302,41 @@ municipios <- c(
   "PAPUNAUA", "YAVARATÉ", "PUERTO CARREÑO", "LA PRIMAVERA", "SANTA ROSALÍA", "CUMARIBO","GUATAPÉ","NOROSÍ","SAN JOSÉ DE URÉ","TUCHÍN"
 )
 
-# Inicializar una lista para guardar los datos modificados
-datos_modificados <- list()
-# Procesar cada hoja
-
-for (hoja in hojas) {
-  # Leer la hoja
-  data <- read_excel(archivo, sheet = hoja)
-  if ("MUNICIPIOS" %in% colnames(data)) {
-    data <- data %>%
-      mutate(MUNICIPIOS = eliminar_parentesis(MUNICIPIOS))
-  } 
-  datos_modificados[[hoja]] <- data
-}
-
 # Crear una tabla de municipios y sus códigos
 tabla_municipios <- data.frame(MUNICIPIOS = municipios, 
                                CODIGO_MUNICIPIOS = codigos_municipios)
-
-# Unir los datos originales con los códigos de departamentos
-datos <- merge(datos, tabla_departamentos, by = "DEPARTAMENTOS", all.x = TRUE)
-
-# Unir los datos originales con los códigos de municipios
-datos <- merge(datos, tabla_municipios, by = "MUNICIPIOS", all.x = TRUE) 
+# Inicializar una lista para guardar los datos modificados
+datos_modificados <- list()
+# Procesar cada hoja
+for (hoja in hojas) {
+  # Leer la hoja
+  data <- read_excel(ruta_archivo, sheet = hoja)
+  
+  # Verificar y limpiar los nombres de los municipios, si la columna existe
+  if ("MUNICIPIOS" %in% colnames(data)) {
+    data <- data %>%
+      mutate(MUNICIPIOS = eliminar_parentesis(MUNICIPIOS))
+  }
+  
+  # Unir los datos con los códigos de departamentos (si existe la columna DEPARTAMENTOS)
+  if ("DEPARTAMENTOS" %in% colnames(data)) {
+    data <- merge(data, tabla_departamentos, by = "DEPARTAMENTOS", all.x = TRUE)
+  }
+  
+  # Unir los datos con los códigos de municipios (si existe la columna MUNICIPIOS)
+  if ("MUNICIPIOS" %in% colnames(data)) {
+    data <- merge(data, tabla_municipios, by = "MUNICIPIOS", all.x = TRUE)
+  }
+  
+  # Reordenar las columnas si existen las columnas CODIGO_MUNICIPIOS y CODIGO_DEPARTAMENTO
+  if ("CODIGO_MUNICIPIOS" %in% colnames(data) & "CODIGO_DEPARTAMENTO" %in% colnames(data)) {
+    cols_order <- c("CODIGO_MUNICIPIOS", "MUNICIPIOS", "CODIGO_DEPARTAMENTO", "DEPARTAMENTOS", setdiff(names(data), c("CODIGO_MUNICIPIOS", "MUNICIPIOS", "CODIGO_DEPARTAMENTO", "DEPARTAMENTOS")))
+    data <- data[, cols_order]
+  }
+  
+  # Guardar los datos modificados en la lista
+  datos_modificados[[hoja]] <- data
+}
 
 # Escribir el nuevo archivo de Excel con los códigos agregados
-write.xlsx(datos, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\OBSERVADO2023RD.xlsx", sheetName = "Hoja1", overwrite = TRUE)
-
+write.xlsx(datos_modificados, file = ruta_archivo, overwrite = TRUE)
