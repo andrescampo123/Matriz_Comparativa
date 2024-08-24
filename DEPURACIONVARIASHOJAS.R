@@ -17,7 +17,7 @@ library(openxlsx)
 # Leer la base de datos para depurar departamentos y municipios
 
 ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024.xlsx"
-hojas <- c("ENERO","FEBRERO")
+hojas <- c("ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO")
 
 
 
@@ -305,8 +305,10 @@ municipios <- c(
 # Crear una tabla de municipios y sus códigos
 tabla_municipios <- data.frame(MUNICIPIOS = municipios, 
                                CODIGO_MUNICIPIOS = codigos_municipios)
+
 # Inicializar una lista para guardar los datos modificados
 datos_modificados <- list()
+
 # Procesar cada hoja
 for (hoja in hojas) {
   # Leer la hoja
@@ -328,10 +330,21 @@ for (hoja in hojas) {
     data <- merge(data, tabla_municipios, by = "MUNICIPIOS", all.x = TRUE)
   }
   
-  # Reordenar las columnas si existen las columnas CODIGO_MUNICIPIOS y CODIGO_DEPARTAMENTO
-  if ("CODIGO_MUNICIPIOS" %in% colnames(data) & "CODIGO_DEPARTAMENTO" %in% colnames(data)) {
-    cols_order <- c("CODIGO_MUNICIPIOS", "MUNICIPIOS", "CODIGO_DEPARTAMENTO", "DEPARTAMENTOS", setdiff(names(data), c("CODIGO_MUNICIPIOS", "MUNICIPIOS", "CODIGO_DEPARTAMENTO", "DEPARTAMENTOS")))
-    data <- data[, cols_order]
+  # Para las hojas ABRIL, MAYO, JULIO y AGOSTO: Generar DEPARTAMENTOS y CODIGO_DEPARTAMENTO basado en CODIGO_MUNICIPIOS
+  if (hoja %in% c("ABRIL", "MAYO", "JULIO", "AGOSTO") & "CODIGO_MUNICIPIOS" %in% colnames(data)) {
+    # Extraer el código de departamento de los primeros dos dígitos del código de municipio
+    data <- data %>%
+      mutate(CODIGO_DEPARTAMENTO = substr(CODIGO_MUNICIPIOS, 1, 2)) %>%
+      left_join(tabla_departamentos, by = "CODIGO_DEPARTAMENTO")
+  }
+  
+  # Verificar si todas las columnas necesarias están presentes antes de reordenar
+  columnas_necesarias <- c("CODIGO MUNICIPIOS", "MUNICIPIOS", "CODIGO DEPARTAMENTO", "DEPARTAMENTOS", "PREDICCION")
+  columnas_existentes <- intersect(columnas_necesarias, colnames(data))
+  
+  # Reordenar las columnas si están todas presentes
+  if (length(columnas_existentes) == length(columnas_necesarias)) {
+    data <- data[, columnas_necesarias]
   }
   
   # Guardar los datos modificados en la lista
@@ -339,4 +352,4 @@ for (hoja in hojas) {
 }
 
 # Escribir el nuevo archivo de Excel con los códigos agregados
-write.xlsx(datos_modificados, file = ruta_archivo, overwrite = TRUE)
+write.xlsx(datos_modificados, file = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024D.xlsx", overwrite = TRUE)
