@@ -306,6 +306,13 @@ municipios <- c(
 tabla_municipios <- data.frame(MUNICIPIOS = municipios, 
                                CODIGO_MUNICIPIOS = codigos_municipios)
 
+# Función para eliminar paréntesis y espacios innecesarios
+eliminar_parentesis <- function(municipios) {
+  municipios <- gsub("\\(.*\\)", "", municipios)
+  municipios <- trimws(municipios)
+  return(municipios)
+}
+
 # Inicializar una lista para guardar los datos modificados
 datos_modificados <- list()
 
@@ -339,7 +346,7 @@ for (hoja in hojas) {
   }
   
   # Verificar si todas las columnas necesarias están presentes antes de reordenar
-  columnas_necesarias <- c("CODIGO MUNICIPIOS", "MUNICIPIOS", "CODIGO DEPARTAMENTO", "DEPARTAMENTOS", "PREDICCION")
+  columnas_necesarias <- c("CODIGO_MUNICIPIOS", "MUNICIPIOS", "CODIGO_DEPARTAMENTO", "DEPARTAMENTOS", "PREDICCION")
   columnas_existentes <- intersect(columnas_necesarias, colnames(data))
   
   # Reordenar las columnas si están todas presentes
