@@ -16,8 +16,8 @@ library(openxlsx)
 
 # Leer la base de datos para depurar departamentos y municipios
 
-ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024.xlsx"
-hojas <- c("ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO")
+ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024R.xlsx"
+hojas <- c("Hoja1")
 
 
 
@@ -343,7 +343,7 @@ eliminar_parentesis <- function(municipios) {
 
 # Inicializar una lista para guardar los datos modificados
 datos_modificados <- list()
-
+3
 # Procesar cada hoja
 for (hoja in hojas) {
   # Leer la hoja
@@ -387,4 +387,4 @@ for (hoja in hojas) {
 }
 
 # Escribir el nuevo archivo de Excel con los códigos agregados
-write.xlsx(datos_modificados, file = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024D.xlsx", overwrite = TRUE)
+write.xlsx(datos_modificados, file = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024RD.xlsx", overwrite = TRUE)

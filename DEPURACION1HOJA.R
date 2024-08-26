@@ -6,17 +6,17 @@ install.packages("openxlsx")
 library(readxl)
 library(openxlsx)
 #ELIMINAR todso lo que esta entre parentesis 
-OBSERVADO2023R <- read_excel("C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\OBSERVADO2023R.xlsx", sheet = "Sheet 1")
+OBSERVADO2023R <- read_excel("C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024R.xlsx", sheet = "Hoja1")
 
 # Eliminar el contenido dentro de paréntesis en la columna MUNICIPIOS
 OBSERVADO2023R$MUNICIPIOS <- gsub("\\s*\\([^\\)]+\\)", "", OBSERVADO2023R$MUNICIPIOS)
 # sobrescribir el original
-write.xlsx(OBSERVADO2023R, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\OBSERVADO2023R.xlsx")
+write.xlsx(OBSERVADO2023R, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024R.xlsx")
 
 
 
 # Leer la base de datos desde el archivo Excel existente
-ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\OBSERVADO2023R.xlsx"
+ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024R.xlsx"
 
 
 datos <- read_excel(ruta_archivo, sheet = "Sheet 1")
@@ -312,10 +312,16 @@ tabla_municipios <- data.frame(MUNICIPIOS = municipios,
 datos <- merge(datos, tabla_departamentos, by = "DEPARTAMENTOS", all.x = TRUE)
 
 # Unir los datos originales con los códigos de municipios
-datos <- merge(datos, tabla_municipios, by = "MUNICIPIOS", all.x = TRUE) 
+datos <- merge(datos, tabla_municipios, by = "MUNICIPIOS", all.x = TRUE)
 
+# Eliminar duplicados en caso de que existan
+datos <- datos[!duplicated(colnames(datos))]
+
+# Reordenar las columnas en el orden deseado
+columnas_necesarias <- c("CODIGO_MUNICIPIOS", "MUNICIPIOS", "CODIGO_DEPARTAMENTO", "DEPARTAMENTOS", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO")
+datos <- datos[, columnas_necesarias]
 # Escribir el nuevo archivo de Excel con los códigos agregados
-write.xlsx(datos, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\OBSERVADO2023RD.xlsx", sheetName = "Hoja1", overwrite = TRUE)
+write.xlsx(datos, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024RD.xlsx", sheetName = "Hoja1", overwrite = TRUE)
 
 
 
