@@ -23,7 +23,7 @@ departamentos_a_regiones <- data.frame(
                     "VAUPÉS", "VAUPES", "VICHADA", "ARCHIPIÉLAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA",
                     "ARCHIPIELAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA", "ARCHIPIELAGO DE SAN ANDRES, PROVIDENCIA Y SANTA CATALINA", 
                     "BOLIVAR", "GUANÍA", "GUANIA", "CHOCO", "CAQUETÁ", "CAQUETA", "BOYACÁ", "BOYACA",
-                    "ATLÁNTICO", "ATLANTICO", "CÓRDOBA", "CORDOBA") ,
+                    "ATLÁNTICO", "ATLANTICO", "CÓRDOBA", "CORDOBA","ARCHIPIÉLAGO DE SAN ANDRÉS","SANTA MARTA") ,
   
   REGIONES = c("REGIÓN ANDINA", "REGIÓN CARIBE", "REGIÓN CARIBE", "REGIÓN ANDINA", "REGIÓN ANDINA", "REGIÓN ANDINA", 
                "REGIÓN CARIBE", "REGIÓN CARIBE", "REGIÓN ANDINA", "REGIÓN ANDINA", 
@@ -37,11 +37,11 @@ departamentos_a_regiones <- data.frame(
                "REGIÓN AMAZONÍA", "REGIÓN INSULAR", "REGIÓN INSULAR", "REGIÓN INSULAR", 
                "REGIÓN CARIBE", "REGIÓN AMAZONÍA", "REGIÓN AMAZONÍA", "REGIÓN PACÍFICO", "REGIÓN AMAZONÍA", 
                "REGIÓN AMAZONÍA", "REGIÓN ANDINA", "REGIÓN ANDINA", 
-               "REGIÓN CARIBE", "REGIÓN CARIBE", "REGIÓN CARIBE", "REGIÓN CARIBE")
+               "REGIÓN CARIBE", "REGIÓN CARIBE", "REGIÓN CARIBE", "REGIÓN CARIBE","REGIÓN INSULAR","REGIÓN CARIBE")
 )
 
 # Nombres de las hojas
-hojas <- c("FEBRERO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE")
+hojas <- c("ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO")
 
 # Crear una lista para almacenar los resultados de cada hoja
 resultados <- list()
@@ -49,7 +49,7 @@ resultados <- list()
 # Iterar sobre cada hoja, procesar y almacenar el resultado
 for (hoja in hojas) {
   # Leer la hoja actual
-  datos <- read_excel("C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICIONDENGUE2023D.xlsx", sheet = hoja)
+  datos <- read_excel("C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024D.xlsx", sheet = hoja)
   # Añadir la columna REGIONES a partir del mapeo de departamentos
   datos <- datos %>%
     left_join(departamentos_a_regiones, by = "DEPARTAMENTOS") %>%  # Unir con el mapeo de regiones
@@ -82,25 +82,22 @@ for (hoja in hojas) {
 }
 
 # Escribir todas las hojas procesadas en un solo archivo Excel
-write_xlsx(resultados, path = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023REGIONES.xlsx")
+write_xlsx(resultados, path = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024REGIONES.xlsx")
 
 
 # Cargar los archivos
-observado_path <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\OBSERVADOD.xlsx"
-prediccion_path <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023REGIONES.xlsx"
+observado_path <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024RD.xlsx"
+prediccion_path <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024REGIONES.xlsx"
 
 # Definir las combinaciones de columnas y hojas
 combinaciones <- list(
-  list(columna = "FEBREROO", hoja = "FEBRERO"),
-  list(columna = "ABRILO", hoja = "ABRIL"),
-  list(columna = "MAYOO", hoja = "MAYO"),
-  list(columna = "JUNIOO", hoja = "JUNIO"),
-  list(columna = "JULIOO", hoja = "JULIO"),
-  list(columna = "AGOSTOO", hoja = "AGOSTO"),
-  list(columna = "SEPTIEMBREO", hoja = "SEPTIEMBRE"),
-  list(columna = "OCTUBREO", hoja = "OCTUBRE"),
-  list(columna = "NOVIEMBREO", hoja = "NOVIEMBRE"),
-  list(columna = "DICIEMBREO", hoja = "DICIEMBRE")
+  list(columna = "ENERO", hoja = "ENERO"),
+  list(columna = "FEBRERO", hoja = "FEBRERO"),
+  list(columna = "MARZO", hoja = "MARZO"),
+  list(columna = "ABRIL", hoja = "ABRIL"),
+  list(columna = "MAYO", hoja = "MAYO"),
+  list(columna = "JUNIO", hoja = "JUNIO"),
+  list(columna = "JULIO", hoja = "JULIO")
 )
 
 # Función para procesar cada combinación
@@ -108,7 +105,7 @@ procesar_combinacion <- function(columna, hoja) {
   # Leer las columnas necesarias del archivo observado
   hoja_observado <- read_excel(observado_path, sheet = "Sheet 1")
   rango_seleccionado <- hoja_observado %>%
-    select(CODIGO_DEPARTAMENTO, DEPARTAMENTOS, FEBREROO, MARZOO, ABRILO, MAYOO, JUNIOO, JULIOO, AGOSTOO, SEPTIEMBREO, OCTUBREO, NOVIEMBREO, DICIEMBREO) # Selecciona las columnas específicas por nombre o posición
+    select(CODIGO_DEPARTAMENTO, DEPARTAMENTOS,ENERO, FEBRERO, MARZO, ABRIL, MAYO, JUNIO, JULIO) # Selecciona las columnas específicas por nombre o posición
   
   # Filtrar los datos de la columna específica del archivo OBSERVADO
   rangos_combinados <- rango_seleccionado %>%
@@ -147,15 +144,15 @@ resultados_finales_named <- setNames(resultados_finales, sapply(combinaciones, `
 
 
 # Guardar los resultados en un archivo Excel
-write_xlsx(resultados_finales_named, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\COMPARATIVO2023.xlsx")
+write_xlsx(resultados_finales_named, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\COMPARATIVO2024.xlsx")
 
 #NOTA::**** EN ESTA PARTE se debe revisar el documento !!!CONTINUAR!!! EN especial FEBREROO... A OBSERVADO
 
 # Ruta. Aquí vamos a sacar el porcentaje por REGIONES
-ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\COMPARATIVO2023.xlsx"
+ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\COMPARATIVO2024.xlsx"
 
 # Nombres de las hojas de Excel a procesar
-hojas <- c("FEBRERO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE")
+hojas <- c("ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO")
 
 # Crear un nuevo archivo Excel
 wb <- createWorkbook()
@@ -207,7 +204,7 @@ for (i in seq_along(hojas)) {
 }
 
 # Guardar el archivo Excel con múltiples hojas
-saveWorkbook(wb, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\%REGIONES2023.xlsx", overwrite = TRUE)
+saveWorkbook(wb, "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\%REGIONES2024.xlsx", overwrite = TRUE)
 
 #como importar archivos de excel a R
 file.choose()

@@ -16,8 +16,8 @@ library(openxlsx)
 
 # Leer la base de datos para depurar departamentos y municipios
 
-ruta_archivo <-  "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023.xlsx"
-hojas <- c("FEBRERO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE")
+ruta_archivo <-  "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024.xlsx"
+hojas <- c("ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO")
 
 
 
@@ -30,9 +30,9 @@ departamentos <- c("ANTIOQUIA", "ATLÁNTICO", "ATLANTICO", "BOGOTÁ D.C.", "BOGO
                    "SANTANDER", "SUCRE", "TOLIMA", "VALLE DEL CAUCA", "ARAUCA", 
                    "CASANARE", "PUTUMAYO", "SAN ANDRÉS", "SAN ANDRES", "AMAZONAS", "GUAINÍA", "GUAINIA", 
                    "GUAVIARE", "VAUPÉS", "VAUPES", "VICHADA", "ARCHIPIÉLAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA",
-                   "ARCHIPIELAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA","ARCHIPIELAGO DE SAN ANDRES, PROVIDENCIA Y SANTA CATALINA", 
-                   "BOLIVAR", "GUANÍA", "GUANIA", "CHOCO", "CAQUETÁ", "CAQUETA", "BOYACÁ", "BOYACA",
-                   "ATLÁNTICO", "ATLANTICO", "CÓRDOBA", "CORDOBA")
+                   "ARCHIPIELAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA","ARCHIPIELAGO DE SAN ANDRES, PROVIDENCIA Y SANTA CATALINA",
+                   "ARCHIPIÉLAGO DE SAN ANDRÉS", "BOLIVAR", "GUANÍA", "GUANIA", "CHOCO", "CAQUETÁ", "CAQUETA", "BOYACÁ", "BOYACA",
+                   "ATLÁNTICO", "ATLANTICO", "CÓRDOBA", "CORDOBA","SANTA MARTA")
 
 codigos_departamentos <- c("05", "08", "08", "11", "11","11", "13", "13", "15", "15", 
                            "17", "18", "18", "19", "20", "23", "23", 
@@ -41,8 +41,8 @@ codigos_departamentos <- c("05", "08", "08", "11", "11","11", "13", "13", "15", 
                            "68", "70", "73", "76", "81", 
                            "85", "86", "88", "88", "91", "94", "94", 
                            "95", "97", "97", "99", "88","88", 
-                           "88", "13", "94", "94", "27", "18", "18", "15", "15",
-                           "08", "08", "23", "23")
+                           "88","88", "13", "94", "94", "27", "18", "18", "15", "15",
+                           "08", "08", "23", "23","47")
 
 # Crear una tabla de departamentos y sus códigos
 tabla_departamentos <- data.frame(DEPARTAMENTOS = departamentos, 
@@ -386,10 +386,10 @@ for (hoja in hojas) {
 }
 
 # Escribir el nuevo archivo de Excel con los códigos agregados
-write.xlsx(datos_modificados, file = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICIONDENGUE2023D.xlsx", overwrite = TRUE)
+write.xlsx(datos_modificados,"C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\PREDICCIONDENGUE2024D.xlsx", file = , overwrite = TRUE)
 
 # Para las hojas ABRIL, MAYO, JULIO y AGOSTO: Generar DEPARTAMENTOS y CODIGO_DEPARTAMENTO basado en CODIGO_MUNICIPIOS
-if (hoja %in% c("ABRIL", "MAYO", "JULIO", "AGOSTO") & "CODIGO_MUNICIPIOS" %in% colnames(data)) {
+if (hoja %in% c("ABRIL", "MAYO", "JULIO") & "CODIGO_MUNICIPIOS" %in% colnames(data)) {
   # Extraer el código de departamento de los primeros dos dígitos del código de municipio
   data <- data %>%
     mutate(CODIGO_DEPARTAMENTO = substr(CODIGO_MUNICIPIOS, 1, 2)) %>%
