@@ -12,32 +12,37 @@ library(dplyr)
 library(readxl)
 library(openxlsx)
 
-# !!!Este codigo Depura las bases y elimina los parentesis dentro d ela columna municipio!!!
+# !!!Este codigo Depura las bases y elimina los parentesis dentro dE la columna municipio, necesito mejorarlo para que no se repitan columnas!!!
 
 # Leer la base de datos para depurar departamentos y municipios
 
-ruta_archivo <- "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024R.xlsx"
-hojas <- c("Hoja1")
+ruta_archivo <-  "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICCIONDENGUE2023.xlsx"
+hojas <- c("FEBRERO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE")
 
 
 
 #DEPARTAMENTOS Y CODIGOS
 
-departamentos <- c("ANTIOQUIA", "ATLÁNTICO", "BOGOTÁ D.C.", "BOLÍVAR", "BOYACÁ", 
-                   "CALDAS", "CAQUETÁ", "CAUCA", "CESAR", "CÓRDOBA", 
-                   "CUNDINAMARCA", "CHOCÓ", "HUILA", "LA GUAJIRA", "MAGDALENA", 
-                   "META", "NARIÑO", "NORTE DE SANTANDER", "QUINDÍO", "RISARALDA", 
+departamentos <- c("ANTIOQUIA", "ATLÁNTICO", "ATLANTICO", "BOGOTÁ D.C.", "BOGOTA D.C.","BOGOTÁ, D.C.", "BOLÍVAR", "BOLIVAR", "BOYACÁ", "BOYACA", 
+                   "CALDAS", "CAQUETÁ", "CAQUETA", "CAUCA", "CESAR", "CÓRDOBA", "CORDOBA", 
+                   "CUNDINAMARCA", "CHOCÓ", "CHOCO", "HUILA", "LA GUAJIRA", "MAGDALENA", 
+                   "META", "NARIÑO", "NARINO", "NORTE DE SANTANDER", "QUINDÍO", "QUINDIO", "RISARALDA", 
                    "SANTANDER", "SUCRE", "TOLIMA", "VALLE DEL CAUCA", "ARAUCA", 
-                   "CASANARE", "PUTUMAYO", "SAN ANDRÉS", "AMAZONAS", "GUAINÍA", 
-                   "GUAVIARE", "VAUPÉS", "VICHADA")
+                   "CASANARE", "PUTUMAYO", "SAN ANDRÉS", "SAN ANDRES", "AMAZONAS", "GUAINÍA", "GUAINIA", 
+                   "GUAVIARE", "VAUPÉS", "VAUPES", "VICHADA", "ARCHIPIÉLAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA",
+                   "ARCHIPIELAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA","ARCHIPIELAGO DE SAN ANDRES, PROVIDENCIA Y SANTA CATALINA", 
+                   "BOLIVAR", "GUANÍA", "GUANIA", "CHOCO", "CAQUETÁ", "CAQUETA", "BOYACÁ", "BOYACA",
+                   "ATLÁNTICO", "ATLANTICO", "CÓRDOBA", "CORDOBA")
 
-codigos_departamentos <- c("05", "08", "11", "13", "15", 
-                           "17", "18", "19", "20", "23", 
-                           "25", "27", "41", "44", "47", 
-                           "50", "52", "54", "63", "66", 
+codigos_departamentos <- c("05", "08", "08", "11", "11","11", "13", "13", "15", "15", 
+                           "17", "18", "18", "19", "20", "23", "23", 
+                           "25", "27", "27", "41", "44", "47", 
+                           "50", "52", "52", "54", "63", "63", "66", 
                            "68", "70", "73", "76", "81", 
-                           "85", "86", "88", "91", "94", 
-                           "95", "97", "99")
+                           "85", "86", "88", "88", "91", "94", "94", 
+                           "95", "97", "97", "99", "88","88", 
+                           "88", "13", "94", "94", "27", "18", "18", "15", "15",
+                           "08", "08", "23", "23")
 
 # Crear una tabla de departamentos y sus códigos
 tabla_departamentos <- data.frame(DEPARTAMENTOS = departamentos, 
@@ -365,13 +370,7 @@ for (hoja in hojas) {
     data <- merge(data, tabla_municipios, by = "MUNICIPIOS", all.x = TRUE)
   }
   
-  # Para las hojas ABRIL, MAYO, JULIO y AGOSTO: Generar DEPARTAMENTOS y CODIGO_DEPARTAMENTO basado en CODIGO_MUNICIPIOS
-  if (hoja %in% c("ABRIL", "MAYO", "JULIO", "AGOSTO") & "CODIGO_MUNICIPIOS" %in% colnames(data)) {
-    # Extraer el código de departamento de los primeros dos dígitos del código de municipio
-    data <- data %>%
-      mutate(CODIGO_DEPARTAMENTO = substr(CODIGO_MUNICIPIOS, 1, 2)) %>%
-      left_join(tabla_departamentos, by = "CODIGO_DEPARTAMENTO")
-  }
+  
   
   # Verificar si todas las columnas necesarias están presentes antes de reordenar
   columnas_necesarias <- c("CODIGO_MUNICIPIOS", "MUNICIPIOS", "CODIGO_DEPARTAMENTO", "DEPARTAMENTOS", "PREDICCION")
@@ -387,4 +386,12 @@ for (hoja in hojas) {
 }
 
 # Escribir el nuevo archivo de Excel con los códigos agregados
-write.xlsx(datos_modificados, file = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2024\\OBSERVADO2024RD.xlsx", overwrite = TRUE)
+write.xlsx(datos_modificados, file = "C:\\Users\\ASUS\\Desktop\\Andres y Laura\\INS\\Productos a entregar\\Matriz comparativa\\R\\Resultados R\\DENGUE2023\\PREDICIONDENGUE2023D.xlsx", overwrite = TRUE)
+
+# Para las hojas ABRIL, MAYO, JULIO y AGOSTO: Generar DEPARTAMENTOS y CODIGO_DEPARTAMENTO basado en CODIGO_MUNICIPIOS
+if (hoja %in% c("ABRIL", "MAYO", "JULIO", "AGOSTO") & "CODIGO_MUNICIPIOS" %in% colnames(data)) {
+  # Extraer el código de departamento de los primeros dos dígitos del código de municipio
+  data <- data %>%
+    mutate(CODIGO_DEPARTAMENTO = substr(CODIGO_MUNICIPIOS, 1, 2)) %>%
+    left_join(tabla_departamentos, by = "CODIGO_DEPARTAMENTO")
+}
